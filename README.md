@@ -11,7 +11,7 @@
 
 <img src="public/assets/img/head/screenshot.webp">
 
-<video src="movie1.mp4" loop autoplay muted>
+<!-- <video src="movie1.mp4" loop autoplay muted> -->
 
 ## 🎮 ~ Getting Started
 
