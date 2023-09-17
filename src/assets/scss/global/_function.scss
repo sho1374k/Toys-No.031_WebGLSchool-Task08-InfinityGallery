@@ -1,0 +1,83 @@
+@use "sass:math"; // math.div(a,b); => a / b
+@use "./variable" as *;
+
+// --------------------------
+
+// ブレイクポイント
+
+// --------------------------
+@mixin pc_w($w: $screen4) {
+  @media (min-width: #{$w+1}px) {
+    @content;
+  }
+}
+@mixin sp_w($w: $screen4) {
+  @media (max-width: #{$w}px) {
+    @content;
+  }
+}
+
+// --------------------------
+
+// rem
+// htmlでfont-sizeが62.5%の時に使用できる関数
+
+// --------------------------
+@function rem($px) {
+  @return math.div($px, 16) * 1rem;
+}
+
+// --------------------------
+
+// vw
+
+// --------------------------
+@function vw($w, $base: 1440) {
+  @return math.div($w, $base) * 100vw;
+}
+@function vw_sp($w, $base: 375) {
+  @return math.div($w, $base) * 100vw;
+}
+
+// --------------------------
+
+// vh
+
+// --------------------------
+@function vh($h, $base: 800) {
+  @return math.div($h, $base) * 100vh;
+}
+@function vh_sp($h, $base: 800) {
+  @return math.div($h, $base) * 100vh;
+}
+
+// --------------------------
+
+// liquid | viewportのwidth基準
+// htmlのfont-sizeがリッキド用に設定している時に使用できる関数
+// font-size: calc(100 / var(--base-vw) * 1vw);
+
+// --------------------------
+@function liquid($px) {
+  @return $px * 1rem;
+}
+
+// --------------------------
+
+// hover && active
+
+// --------------------------
+@mixin hover() {
+  @media (hover: hover) {
+    &:hover {
+      @content;
+    }
+  }
+}
+@mixin active() {
+  @media (hover: none) {
+    &:active {
+      @content;
+    }
+  }
+}

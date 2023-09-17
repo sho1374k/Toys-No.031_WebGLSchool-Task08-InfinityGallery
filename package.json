@@ -1,0 +1,30 @@
+{
+  "name": "project",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build && node replaceHtml.mjs",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^2.2.1",
+    "gsap": "^3.11.4",
+    "lil-gui": "^0.18.2"
+  },
+  "devDependencies": {
+    "@astrojs/sitemap": "^1.2.2",
+    "@frontendista/astro-html-minify": "^1.0.7",
+    "autoprefixer": "^10.4.14",
+    "dotenv": "^16.0.3",
+    "fs-extra": "^11.1.1",
+    "glob": "^9.3.4",
+    "postcss-merge-queries": "^1.0.3",
+    "prettier": "^2.8.7",
+    "prettier-plugin-astro": "^0.8.0",
+    "sass": "^1.61.0",
+    "vite-plugin-glsl": "^1.1.2"
+  }
+}

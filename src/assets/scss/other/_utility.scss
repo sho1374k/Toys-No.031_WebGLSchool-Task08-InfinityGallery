@@ -1,0 +1,17 @@
+@use "sass:math"; // math.div(a,b); => a / b
+@use "../global/app" as *;
+
+@include pc_w() {
+  .uPcHide {
+    display: none !important;
+  }
+}
+@include sp_w() {
+  .uSpHide {
+    display: none !important;
+  }
+}
+
+.uHidden {
+  display: none !important;
+}

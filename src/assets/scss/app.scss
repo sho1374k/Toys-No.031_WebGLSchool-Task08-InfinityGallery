@@ -1,0 +1,1112 @@
+@use "./global/app" as *;
+
+// foundation
+@use "./foundation/root";
+@use "./foundation/reset";
+
+// utility
+@use "./other/utility";
+
+// --------------------------
+
+// init
+
+// --------------------------
+html,
+body {
+  overflow: hidden;
+}
+body {
+  width: 100vw;
+  height: 100vh;
+  height: 100svh;
+  height: calc(var(--vh, 1vh) * 100);
+  &[data-status=""] {
+    cursor: wait;
+  }
+}
+
+.lil-gui {
+  @include sp_w() {
+    display: none !important;
+  }
+}
+
+// --------------------------
+
+// loading
+
+// --------------------------
+.lLoading {
+  pointer-events: none;
+  user-select: none;
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  opacity: 1;
+  body[data-status="enter"] & {
+    transition: 0.8s ease opacity;
+    opacity: 0;
+  }
+}
+
+// --------------------------
+
+// canvas
+
+// --------------------------
+#world {
+  pointer-events: none;
+  user-select: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+// --------------------------
+
+// コンテナ
+
+// --------------------------
+.lContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100svh;
+  height: calc(var(--vh, 1vh) * 100);
+  overflow: hidden;
+
+  pointer-events: none;
+  user-select: none;
+
+  body[data-status="enter"] & {
+    pointer-events: initial;
+    user-select: initial;
+  }
+}
+
+// --------------------------
+
+// コンテナ: 無限スクロール
+
+// --------------------------
+.cInfinity {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  overflow: hidden;
+  width: 100vw;
+  height: 100vh;
+  height: 100svh;
+  height: calc(var(--vh, 1vh) * 100);
+  transform: scale(1) translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  body[data-opened="1"] & {
+    pointer-events: none;
+    user-select: none;
+  }
+}
+
+// --------------------------
+
+// アイテム: 無限スクロール
+
+// --------------------------
+$basePcW: 320;
+$basePcH: 320;
+$baseSpW: 150;
+$baseSpH: 150;
+$gapPcW: 50;
+$gapPcH: 50;
+$gapSpW: 12 * 2;
+$gapSpH: 12 * 2;
+$rowCount: 7;
+$colCount: 7;
+$sumCount: $rowCount * $colCount;
+$scale1: 1;
+$scale2: 1.5;
+$scale3: 2;
+$scale4: 2.5;
+$sizeDuration: 1s;
+$sizeEase: ease;
+
+// リストコンテナ: base
+.cInfinityList {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0) scale(1);
+  z-index: 0;
+  display: flex;
+  flex-wrap: wrap;
+  width: liquid($basePcW * $rowCount);
+  height: liquid($basePcH * $colCount);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  overflow: hidden;
+
+  // prettier-ignore
+  transition: $sizeDuration $sizeEase width, 
+              $sizeDuration $sizeEase height, 
+              $sizeDuration $sizeEase top, 
+              $sizeDuration $sizeEase left, 
+              $sizeDuration $sizeEase transform;
+}
+
+// リストコンテナ: scale
+.cInfinityList {
+  body[data-scale="#{$scale1}"] & {
+    width: liquid($basePcW * $rowCount * $scale1);
+    height: liquid($basePcH * $colCount * $scale1);
+    @include sp_w() {
+      width: liquid($baseSpW * $rowCount * $scale1);
+      height: liquid($baseSpH * $colCount * $scale1);
+    }
+  }
+  body[data-scale="#{$scale2}"] & {
+    width: liquid($basePcW * $rowCount * $scale2);
+    height: liquid($basePcH * $colCount * $scale2);
+    @include sp_w() {
+      width: liquid($baseSpW * $rowCount * $scale2);
+      height: liquid($baseSpH * $colCount * $scale2);
+    }
+  }
+  body[data-scale="#{$scale3}"] & {
+    width: liquid($basePcW * $rowCount * $scale3);
+    height: liquid($basePcH * $colCount * $scale3);
+    @include sp_w() {
+      width: liquid($baseSpW * $rowCount * $scale3);
+      height: liquid($baseSpH * $colCount * $scale3);
+    }
+  }
+  body[data-scale="#{$scale4}"] & {
+    width: liquid($basePcW * $rowCount * $scale4);
+    height: liquid($basePcH * $colCount * $scale4);
+    @include sp_w() {
+      width: liquid($baseSpW * $rowCount * $scale4);
+      height: liquid($baseSpH * $colCount * $scale4);
+    }
+  }
+}
+
+// アイテムコンテナ: base
+.cInfinityItem {
+  position: absolute;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: liquid($basePcW);
+  height: liquid($basePcH);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  overflow: hidden;
+
+  // prettier-ignore
+  transition: $sizeDuration $sizeEase width, 
+              $sizeDuration $sizeEase height, 
+              $sizeDuration $sizeEase top, 
+              $sizeDuration $sizeEase left;
+
+  @include sp_w() {
+    width: liquid($baseSpW);
+    height: liquid($baseSpH);
+  }
+}
+
+// アイテムコンテナ: scale
+.cInfinityItem {
+  body[data-scale="#{$scale1}"] & {
+    width: liquid($basePcW * $scale1);
+    height: liquid($basePcH * $scale1);
+    @include sp_w() {
+      width: liquid($baseSpW * $scale1);
+      height: liquid($baseSpH * $scale1);
+    }
+  }
+  body[data-scale="#{$scale2}"] & {
+    width: liquid($basePcW * $scale2);
+    height: liquid($basePcH * $scale2);
+    @include sp_w() {
+      width: liquid($baseSpW * $scale2);
+      height: liquid($baseSpH * $scale2);
+    }
+  }
+  body[data-scale="#{$scale3}"] & {
+    width: liquid($basePcW * $scale3);
+    height: liquid($basePcH * $scale3);
+    @include sp_w() {
+      width: liquid($baseSpW * $scale3);
+      height: liquid($baseSpH * $scale3);
+    }
+  }
+  body[data-scale="#{$scale4}"] & {
+    width: liquid($basePcW * $scale4);
+    height: liquid($basePcH * $scale4);
+    @include sp_w() {
+      width: liquid($baseSpW * $scale4);
+      height: liquid($baseSpH * $scale4);
+    }
+  }
+}
+
+// アイテムコンテナ: position
+.cInfinityItem {
+  &:nth-of-type(7n - 6) {
+    left: liquid($basePcW * 1 - $basePcW);
+    @include sp_w() {
+      left: liquid($baseSpW * 1 - $baseSpW);
+    }
+    $index: 1;
+    body[data-scale="#{$scale1}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale1);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale1);
+      }
+    }
+    body[data-scale="#{$scale2}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale2);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale2);
+      }
+    }
+    body[data-scale="#{$scale3}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale3);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale3);
+      }
+    }
+    body[data-scale="#{$scale4}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale4);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale4);
+      }
+    }
+  }
+  &:nth-of-type(7n - 5) {
+    left: liquid($basePcW * 2 - $basePcW);
+    @include sp_w() {
+      left: liquid($baseSpW * 2 - $baseSpW);
+    }
+    $index: 2;
+    body[data-scale="#{$scale1}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale1);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale1);
+      }
+    }
+    body[data-scale="#{$scale2}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale2);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale2);
+      }
+    }
+    body[data-scale="#{$scale3}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale3);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale3);
+      }
+    }
+    body[data-scale="#{$scale4}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale4);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale4);
+      }
+    }
+  }
+  &:nth-of-type(7n - 4) {
+    left: liquid($basePcW * 3 - $basePcW);
+    @include sp_w() {
+      left: liquid($baseSpW * 3 - $baseSpW);
+    }
+    $index: 3;
+    body[data-scale="#{$scale1}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale1);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale1);
+      }
+    }
+    body[data-scale="#{$scale2}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale2);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale2);
+      }
+    }
+    body[data-scale="#{$scale3}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale3);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale3);
+      }
+    }
+    body[data-scale="#{$scale4}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale4);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale4);
+      }
+    }
+  }
+  &:nth-of-type(7n - 3) {
+    left: liquid($basePcW * 4 - $basePcW);
+    @include sp_w() {
+      left: liquid($baseSpW * 4 - $baseSpW);
+    }
+    $index: 4;
+    body[data-scale="#{$scale1}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale1);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale1);
+      }
+    }
+    body[data-scale="#{$scale2}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale2);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale2);
+      }
+    }
+    body[data-scale="#{$scale3}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale3);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale3);
+      }
+    }
+    body[data-scale="#{$scale4}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale4);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale4);
+      }
+    }
+  }
+  &:nth-of-type(7n - 2) {
+    left: liquid($basePcW * 5 - $basePcW);
+    @include sp_w() {
+      left: liquid($baseSpW * 5 - $baseSpW);
+    }
+    $index: 5;
+    body[data-scale="#{$scale1}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale1);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale1);
+      }
+    }
+    body[data-scale="#{$scale2}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale2);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale2);
+      }
+    }
+    body[data-scale="#{$scale3}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale3);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale3);
+      }
+    }
+    body[data-scale="#{$scale4}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale4);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale4);
+      }
+    }
+  }
+  &:nth-of-type(7n - 1) {
+    left: liquid($basePcW * 6 - $basePcW);
+    @include sp_w() {
+      left: liquid($baseSpW * 6 - $baseSpW);
+    }
+    $index: 6;
+    body[data-scale="#{$scale1}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale1);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale1);
+      }
+    }
+    body[data-scale="#{$scale2}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale2);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale2);
+      }
+    }
+    body[data-scale="#{$scale3}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale3);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale3);
+      }
+    }
+    body[data-scale="#{$scale4}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale4);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale4);
+      }
+    }
+  }
+  &:nth-of-type(7n) {
+    left: liquid($basePcW * 7 - $basePcW);
+    @include sp_w() {
+      left: liquid($baseSpW * 7 - $baseSpW);
+    }
+    $index: 7;
+    body[data-scale="#{$scale1}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale1);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale1);
+      }
+    }
+    body[data-scale="#{$scale2}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale2);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale2);
+      }
+    }
+    body[data-scale="#{$scale3}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale3);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale3);
+      }
+    }
+    body[data-scale="#{$scale4}"] & {
+      left: liquid(($basePcW * $index - $basePcW) * $scale4);
+      @include sp_w() {
+        left: liquid(($baseSpW * $index - $baseSpW) * $scale4);
+      }
+    }
+  }
+
+  @for $i from 1 through $rowCount {
+    &:nth-of-type(n + #{($rowCount) * $i + 1}) {
+      z-index: 1;
+      top: liquid($basePcH * $i);
+      @include sp_w() {
+        top: liquid($baseSpH * $i);
+      }
+
+      body[data-scale="#{$scale1}"] & {
+        top: liquid(($basePcH * $i) * $scale1);
+        @include sp_w() {
+          top: liquid(($baseSpH * $i) * $scale1);
+        }
+      }
+      body[data-scale="#{$scale2}"] & {
+        top: liquid(($basePcH * $i) * $scale2);
+        @include sp_w() {
+          top: liquid(($baseSpH * $i) * $scale2);
+        }
+      }
+      body[data-scale="#{$scale3}"] & {
+        top: liquid(($basePcH * $i) * $scale3);
+        @include sp_w() {
+          top: liquid(($baseSpH * $i) * $scale3);
+        }
+      }
+      body[data-scale="#{$scale4}"] & {
+        top: liquid(($basePcH * $i) * $scale4);
+        @include sp_w() {
+          top: liquid(($baseSpH * $i) * $scale4);
+        }
+      }
+    }
+  }
+}
+
+// インナー: base
+.cInfinityItem__inner {
+  cursor: pointer;
+  position: relative;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: liquid($basePcW - $gapPcW);
+  height: liquid($basePcH - $gapPcH);
+  border-radius: liquid($basePcW * 0.1);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  overflow: hidden;
+  transform: translate3d(0, 0, 0);
+
+  // prettier-ignore
+  transition: $sizeDuration $sizeEase width, 
+              $sizeDuration $sizeEase height, 
+              $sizeDuration $sizeEase font-size, 
+              $sizeDuration $sizeEase border-radius;
+
+  @include sp_w() {
+    width: liquid($baseSpW - $gapSpW);
+    height: liquid($baseSpH - $gapSpH);
+  }
+}
+
+// inne: child
+.cInfinityItem__inner {
+  .img {
+    opacity: 0;
+    pointer-events: none;
+    user-select: none;
+    position: relative;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      margin: auto;
+    }
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      margin: auto;
+    }
+  }
+
+  img {
+    pointer-events: none;
+    user-select: none;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    -moz-backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-visibility: hidden;
+    visibility: hidden;
+  }
+}
+
+// インナーscale
+.cInfinityItem__inner {
+  body[data-scale="#{$scale1}"] & {
+    font-size: liquid(128 * $scale1);
+    width: liquid($basePcW * $scale1 - $gapPcW * $scale1);
+    height: liquid($basePcH * $scale1 - $gapPcH * $scale1);
+    @include sp_w() {
+      font-size: liquid(128 * $scale1);
+      width: liquid($baseSpW * $scale1 - $gapSpW * $scale1);
+      height: liquid($baseSpH * $scale1 - $gapSpH * $scale1);
+    }
+  }
+  body[data-scale="#{$scale2}"] & {
+    font-size: liquid(128 * $scale2);
+    width: liquid($basePcW * $scale2 - $gapPcW * $scale2);
+    height: liquid($basePcH * $scale2 - $gapPcH * $scale2);
+    @include sp_w() {
+      font-size: liquid(128 * $scale2);
+      width: liquid($baseSpW * $scale2 - $gapSpW * $scale2);
+      height: liquid($baseSpH * $scale2 - $gapSpH * $scale2);
+    }
+  }
+  body[data-scale="#{$scale3}"] & {
+    font-size: liquid(128 * $scale3);
+    width: liquid($basePcW * $scale3 - $gapPcW * $scale3);
+    height: liquid($basePcH * $scale3 - $gapPcH * $scale3);
+    @include sp_w() {
+      font-size: liquid(128 * $scale3);
+      width: liquid($baseSpW * $scale3 - $gapSpW * $scale3);
+      height: liquid($baseSpH * $scale3 - $gapSpH * $scale3);
+    }
+  }
+  body[data-scale="#{$scale4}"] & {
+    font-size: liquid(128 * $scale4);
+    width: liquid($basePcW * $scale4 - $gapPcW * $scale4);
+    height: liquid($basePcH * $scale4 - $gapPcH * $scale4);
+    @include sp_w() {
+      font-size: liquid(128 * $scale4);
+      width: liquid($baseSpW * $scale4 - $gapSpW * $scale4);
+      height: liquid($baseSpH * $scale4 - $gapSpH * $scale4);
+    }
+  }
+}
+
+// インナー: hover
+.cInfinityItem__inner {
+  &:hover + .cInfinityItem__btn {
+    .cBtnViewMore {
+      transform: translate3d(0, 0%, 0);
+      transition: 0.3s ease transform;
+    }
+  }
+}
+
+// アイテムコンテナ: active
+.cInfinityItem.is-active {
+  .cInfinityItem__inner {
+    pointer-events: none;
+    user-select: none;
+  }
+  .cInfinityItem__btn {
+    .cBtnViewMore {
+      transform: translate3d(0, 101%, 0);
+      transition: 0.3s ease transform;
+    }
+  }
+}
+
+// アイテムボタン
+.cInfinityItem__btn {
+  pointer-events: none;
+  user-select: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  margin: auto;
+  width: max-content;
+  height: max-content;
+  overflow: hidden;
+  .cBtnViewMore {
+    pointer-events: none;
+    user-select: none;
+  }
+}
+.cBtnViewMore {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  height: max-content;
+  padding: 12px 16px;
+  background: var(--black);
+  color: var(--white);
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 20px;
+  transform: translate3d(0, 101%, 0);
+  transition: 0.3s ease transform;
+  @include sp_w() {
+    font-size: 12px;
+    padding: 10px 14px;
+  }
+}
+
+// --------------------------
+
+// サイズボタン
+
+// --------------------------
+$btnPcW: 64px;
+.lBtnSize {
+  position: fixed;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: $btnPcW * 3;
+  height: 40px;
+  padding: 0 5px;
+  border-radius: 48px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  backdrop-filter: blur(8px);
+  background: rgba(#fff, 0.2);
+  transition: 0.4s ease opacity;
+  @include sp_w() {
+    bottom: 40px;
+  }
+
+  &::before {
+    pointer-events: none;
+    user-select: none;
+    content: "";
+    position: absolute;
+    top: 4px;
+    left: 5px;
+    z-index: 0;
+    width: $btnPcW;
+    height: 32px;
+    background: var(--black);
+    border-radius: 32px;
+    transform: translate(0, 0);
+    body[data-scale="#{$scale1}"] & {
+      transform: translate(0, 0);
+    }
+    body[data-scale="#{$scale2}"] & {
+      transform: translate($btnPcW, 0);
+    }
+    body[data-scale="#{$scale3}"] & {
+      transform: translate($btnPcW * 2, 0);
+    }
+    body[data-scale="#{$scale4}"] & {
+      transform: translate($btnPcW * 3, 0);
+    }
+  }
+}
+.cBtnSize {
+  user-select: none;
+  mix-blend-mode: difference;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: $btnPcW;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--white);
+  &[data-scale="#{$scale1}"] {
+    body[data-scale="#{$scale1}"] & {
+      pointer-events: none;
+      user-select: none;
+    }
+  }
+  &[data-scale="#{$scale2}"] {
+    body[data-scale="#{$scale2}"] & {
+      pointer-events: none;
+      user-select: none;
+    }
+  }
+  &[data-scale="#{$scale3}"] {
+    body[data-scale="#{$scale3}"] & {
+      pointer-events: none;
+      user-select: none;
+    }
+  }
+  &[data-scale="#{$scale4}"] {
+    body[data-scale="#{$scale4}"] & {
+      pointer-events: none;
+      user-select: none;
+    }
+  }
+}
+// animation
+.lBtnSize {
+  $duration1: 0.4s;
+  $duration2: 0.8s;
+
+  width: 24px;
+  transform: scale(0);
+  transform-origin: center;
+  &::before {
+    opacity: 0;
+    transition: 0.8s $easeInOutExpo transform, 0.4s ($duration2 + $duration1 - 0.3s) $easeOutCubic opacity;
+  }
+  body[data-status="enter"] & {
+    transition: $duration1 $easeOutCubic transform, $duration2 $duration1 - 0.1s $easeOutExpo width, 0.4s ease opacity;
+    transform: scale(1);
+    width: $btnPcW * 3;
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  .cBtnSize {
+    opacity: 0;
+    body[data-status="enter"] & {
+      transition: 0.4s ($duration2 + $duration1 - 0.3s) $easeOutCubic opacity;
+      opacity: 1;
+    }
+  }
+  body[data-status="enter"][data-opened="1"] & {
+    pointer-events: none;
+    user-select: none;
+    opacity: 0;
+  }
+}
+
+// --------------------------
+
+// アイテム名
+
+// --------------------------
+.lItemName {
+  pointer-events: none;
+  user-select: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  margin: auto;
+}
+.cItemNameList {
+}
+.cItemName {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  z-index: 0;
+  font-size: 48px;
+  line-height: 100%;
+  font-weight: bold;
+  opacity: 0;
+  @include sp_w() {
+    bottom: 16px;
+    left: 16px;
+    font-size: 40px;
+  }
+
+  opacity: 0;
+  body[data-status="enter"] & {
+    transition: 0.8s ease opacity;
+  }
+
+  @for $i from 1 through 49 {
+    &:nth-of-type(#{$i}) {
+      body[data-status="enter"][data-id="#{$i}"] & {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+// --------------------------
+
+// タイトル
+
+// --------------------------
+.lTitle {
+  pointer-events: none;
+  user-select: none;
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  z-index: 100;
+  opacity: 0;
+  body[data-status="enter"] & {
+    transition: 0.8s ease opacity;
+    opacity: 1;
+  }
+  body[data-status="enter"][data-opened="1"] & {
+    opacity: 0;
+  }
+  @include sp_w() {
+    top: 16px;
+    left: 16px;
+  }
+}
+.cTitle {
+}
+.cTitle__box {
+  font-size: 32px;
+  font-weight: bold;
+  line-height: 100%;
+  letter-spacing: -1px;
+  @include sp_w() {
+    font-size: 22px;
+  }
+}
+
+// --------------------------
+
+// 詳細
+
+// --------------------------
+.lDetails {
+  pointer-events: none;
+  user-select: none;
+  position: fixed;
+  top: 64px;
+  left: 24px;
+  z-index: 100;
+  opacity: 0;
+  body[data-status="enter"] & {
+    transition: 0.8s ease opacity;
+    opacity: 1;
+  }
+  body[data-status="enter"][data-opened="1"] & {
+    opacity: 0;
+  }
+  @include sp_w() {
+    top: 44px;
+    left: 16px;
+  }
+}
+.cDetails {
+  font-size: 16px;
+  line-height: 100%;
+  @include sp_w() {
+    font-size: 12px;
+  }
+}
+
+// --------------------------
+
+// コピーライト
+
+// --------------------------
+.cCopyright {
+  position: relative;
+  z-index: 0;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 100;
+  color: var(--white);
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 100%;
+  display: flex;
+  align-items: center;
+  width: max-content;
+  @include sp_w() {
+    bottom: 16px;
+    right: 0;
+    left: 0;
+    margin: auto;
+    font-size: 10px;
+  }
+  &::before {
+    pointer-events: none;
+    user-select: none;
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 100%;
+    height: 2px;
+    background: var(--white);
+    transform: scale(0, 1);
+    transform-origin: left;
+    transition: 0.4s $easeinout transform;
+  }
+  @include hover() {
+    &::before {
+      transform: scale(1, 1);
+    }
+  }
+  opacity: 0;
+  body[data-status="enter"] & {
+    transition: 0.8s ease opacity;
+    opacity: 1;
+  }
+  body[data-status="enter"][data-opened="1"] & {
+    opacity: 0;
+  }
+}
+
+// --------------------------
+
+// 閉じる
+
+// --------------------------
+.lClose {
+  pointer-events: none;
+  user-select: none;
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 100;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  backdrop-filter: blur(8px);
+  background: rgba(#fff, 0.2);
+  @include sp_w() {
+    top: 16px;
+    right: 16px;
+  }
+  &::before,
+  &::after {
+    pointer-events: none;
+    user-select: none;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    margin: auto;
+    width: 30%;
+    height: 2px;
+    border-radius: 2px;
+    background-color: var(--white);
+  }
+  &::before {
+    transform: rotateZ(45deg);
+  }
+  &::after {
+    transform: rotateZ(-45deg);
+  }
+
+  opacity: 0;
+  body[data-status="enter"] & {
+    transition: 0.4s ease opacity;
+  }
+  body[data-status="enter"][data-opened="1"] & {
+    transition: 0.4s 2s ease opacity;
+    opacity: 1;
+  }
+}
+
+// --------------------------
+
+// GitHub
+
+// --------------------------
+.cGithub {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  svg {
+    pointer-events: none;
+    user-select: none;
+    opacity: 1;
+    transition: $hoverTime $hoverEase opacity;
+    path {
+      fill: var(--white);
+    }
+  }
+  @include hover() {
+    svg {
+      opacity: 0.5;
+    }
+  }
+  opacity: 0;
+  body[data-status="enter"] & {
+    transition: 0.8s 0.4s ease opacity;
+    opacity: 1;
+  }
+  body[data-status="enter"][data-opened="1"] & {
+    pointer-events: none;
+    user-select: none;
+    transition: 0.8s 0s ease opacity;
+    opacity: 0;
+  }
+}
